@@ -1,0 +1,2127 @@
+Dim sPath As String
+Dim sql As String
+
+Dim cn2 As Object
+Dim avas As Availabilities
+Dim av As Availability
+Dim recurso As Resource
+Dim recursos As Resources
+Dim calendariox As Calendars
+Dim calendario As Calendar
+Dim R As Resource
+Dim path As String
+Dim pro As Project
+Dim tareas As Tasks
+Dim pretareas As Tasks
+
+Dim excepciones As Exceptions
+Dim excepcion As Exception
+
+
+Dim dia As Day
+Dim mes As Month
+Dim año As Year
+
+Dim Fecha_actual As Date
+
+
+Dim asig As Assignments
+Dim a As Assignment
+Dim t As Task
+Dim tt As Task
+Dim t1 As Task
+Dim t2 As Task
+Dim t3 As Task
+Dim t4 As Task
+Dim t5 As Task
+Dim t6 As Task
+Dim t7 As Task
+
+Dim texto As String
+
+Dim prosum As Task
+
+Dim subpros As Subprojects
+Dim subpro As Subproject
+Dim datereport As Date
+Dim datereport2 As Date
+Dim datereport3 As Date
+
+Dim strArchivos As String
+Dim strNombreCarpeta As String
+Dim excelApp As Excel.Application
+Dim swaWorkbook As Excel.Workbook
+Dim swaWorksheet As Excel.Worksheet
+Dim c As Excel.Range
+Dim RR As Excel.Range
+Dim roww As Integer
+
+Dim sd As StartDriver
+Dim pd As PredecessorDrivers
+
+Dim taskde As TaskDependencies
+Dim taskdy As TaskDependency
+Dim ruta As String
+Dim Discipline As String
+Dim Fase As String
+Dim ID_Tarea_2 As String
+Dim Titulo As String
+
+Dim objOutlineCode As OutlineCode
+Dim objdisciplinaEntry As LookupTableEntry
+Dim objfaseEntry As LookupTableEntry
+Dim objcodigotareaEntry As LookupTableEntry
+
+
+Dim overAlloc As OverAllocatedAssignments
+Dim numOver As Long
+Dim overPeak As Boolean
+
+Dim l0 As Double
+Dim l As Double
+Dim l1 As Double
+Dim l2 As Double
+Dim l3 As Double
+Dim l4 As Double
+
+Sub normaliza()
+
+Set excelApp = CreateObject("Excel.Application")
+    excelApp.Visible = False
+
+Set pro = ActiveProject
+
+Set tareas = pro.Tasks
+
+For Each t In tareas
+
+
+t.Name = excelApp.WorksheetFunction.Proper(t.Name)
+
+Next t
+
+
+End Sub
+
+
+
+Sub A2_CURVAS_TAREAS_M1()
+
+Application.Calculation = pjAutomatic
+  
+    
+ Application.OutlineShowAllTasks
+Application.OutlineShowSubTasks
+
+
+Set excelApp = CreateObject("Excel.Application")
+    excelApp.Visible = True
+    Set swaWorkbook = excelApp.Workbooks.Add
+    Set swaWorksheet = excelApp.Worksheets(1) ' work with first worksheet
+
+
+l = 2
+l0 = 1
+l1 = 1
+
+
+swaWorksheet.Select
+
+swaWorksheet.Cells(1, l0).Value = "UniID"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Tarea"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Fecha"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PercentComplete"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Current"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PercentComplete"
+    
+
+
+Set pro = ActiveProject
+Dim fechaupdate As Date
+
+
+'Application.BaselineClear all:=True
+'Application.BaselineSave all:=True
+
+Set tareas = pro.Tasks
+
+fechaupdate = CDate(InputBox("Digite la Fecha de Act"))
+
+For i = 1 To DateDiff("d", fechaupdate, pro.ProjectSummaryTask.Finish) + 3
+
+
+x = DateDiff("d", pro.ProjectSummaryTask.Start, pro.ProjectSummaryTask.Finish)
+
+Application.UpdateProject All:=True, UpdateDate:=fechaupdate
+
+l1 = 1
+With pro.ProjectSummaryTask
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueID
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Name
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(FormatDateTime(fechaupdate, vbShortDate))
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .PercentComplete
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Duration
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ActualDuration
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualDuration / .Duration) * 100
+l1 = l1 + 1
+
+
+End With
+    l = l + 1
+    For Each t In tareas
+    l1 = 1
+
+    With t
+
+        If .Summary = False Then
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .UniqueID
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .Name
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = CDate(FormatDateTime(fechaupdate, vbShortDate))
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .PercentComplete
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .Duration
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .ActualDuration
+        l1 = l1 + 1
+        
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = (.ActualDuration / .Duration) * 100
+        l1 = l1 + 1
+
+
+        cp5 = Application.FieldNameToFieldConstant("Task Discipline", pjTask)
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .GetField(cp5)
+        l1 = l1 + 1
+                
+                
+        cp6 = Aplication.FieldNameToFieldConstant("Task Owner", pjTask)
+        On Error Resume Next
+        swaWorksheet.Cells(l, l1).Value = .GetField(cp6)
+        l1 = l1 + 1
+                
+                
+        l = l + 1
+        End If
+     
+     End With
+
+    Next t
+fechaupdate = DateAdd("d", 1, fechaupdate)
+
+'l = l + 1
+l1 = 0
+Next i
+
+Application.FileCloseEx pjDoNotSave, , True
+    
+MsgBox "Curva Generada", vbInformation
+        
+End Sub
+
+Sub A1_infodiario()
+
+datereport = CDate(InputBox("Digite la Fecha de Act"))
+'para aumentar el filtro
+datereport2 = DateAdd("d", 1, datereport)
+'para la fecha de estado
+datereport3 = datereport
+'para la proyeccion del siguiente dia.
+datereport4 = DateAdd("d", 1, datereport3)
+    
+Set excelApp = CreateObject("Excel.Application")
+    excelApp.Visible = True
+    Set swaWorkbook = excelApp.Workbooks.Add
+    Set swaWorksheet = excelApp.Worksheets(1) ' work with first worksheet
+    'Set swaWorksheet1 = excelApp.Worksheets(2)
+
+l = 2
+l0 = 1
+l1 = 1
+l2 = l
+
+
+Call cabecerainfodiario
+
+
+Application.Calculation = pjAutomatic
+    
+
+swaWorksheet.Select
+
+
+Set pro = ActiveProject
+
+Set subpros = pro.Subprojects
+
+
+Dim SubProj As Subproject
+
+Set tareas = pro.Tasks
+
+For Each t In tareas
+
+Call infodiariocuerpo
+
+Next t
+
+Set RR = swaWorksheet.Range(swaWorksheet.Cells(2, 1), swaWorksheet.Cells(Range("A1").End(xlDown).Row, 1))
+
+Application.UpdateProject All:=True, UpdateDate:=datereport3
+
+'For Each t In tareas
+
+Call infodiarioproyectadosimple
+
+'Next t
+
+
+Application.FileCloseEx pjDoNotSave
+
+l2 = l
+
+MsgBox "informe Generado", vbExclamation
+
+
+End Sub
+
+Sub infodiariocuerpo()
+
+l1 = 1
+
+With t
+
+'fechas
+
+If .Status <> pjComplete Then
+
+        'sd = .Summary
+        If .Summary = False Then
+            
+            
+             If .Start <= datereport2 Then
+             On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = .UniqueID
+                l1 = l1 + 1
+                
+            
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = .Project
+            l1 = l1 + 1
+            
+            '''niveles
+            
+              texto = ""
+
+        On Error Resume Next
+        Set prosum = pro.Tasks.UniqueID(t.OutlineParent)
+        
+        If Not prosum Is Nothing Then
+        
+            Do
+            
+            lev = prosum.OutlineLevel
+                'If lev = 2 Or lev = 0 Then
+                'Debug.Print T.Name & " " & "**" & prosum.Name
+                                
+                 texto = prosum.Name & vbNewLine & texto
+                                
+                 Debug.Print texto
+                                
+                                
+                'T.Text28 = prosum.Name
+                'End If
+                
+            unid = prosum.OutlineParent
+            
+            Set prosum = pro.Tasks.UniqueID(unid)
+            
+            Loop Until lev = 1 Or lev = 0
+            
+        
+        End If
+
+            
+            texlen = Len(texto)
+            textlent1 = 10
+            texlent = Len(.Name)
+            
+            
+            
+            
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = texto & vbNewLine & "Tarea :" & .Name
+            
+            With swaWorksheet.Cells(l, l1).Characters(Start:=texlen, Length:=textlent1).Font
+            .Name = "Calibri"
+            .FontStyle = "Normal"
+            .Size = 11
+            .Bold = True
+            .Italic = False
+            .Strikethrough = False
+            .Superscript = False
+            .Subscript = False
+            .OutlineFont = False
+            .Shadow = False
+            .Underline = xlUnderlineStyleNone
+            .Color = RGB(255, 153, 0)
+            .TintAndShade = 0
+            .ThemeFont = xlThemeFontMinor
+        End With
+        
+            
+            With swaWorksheet.Cells(l, l1).Characters(Start:=texlen + 10, Length:=textlent).Font
+            .Name = "Calibri"
+            .FontStyle = "Normal"
+            .Size = 11
+            .Bold = True
+            .Italic = True
+            .Strikethrough = False
+            .Superscript = False
+            .Subscript = False
+            .OutlineFont = False
+            .Shadow = False
+            .Underline = xlUnderlineStyleNone
+            .Color = RGB(0, 0, 128)
+            .TintAndShade = 0
+            .ThemeFont = xlThemeFontMinor
+        End With
+        
+            
+            l1 = l1 + 1
+   
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = CDate(.BaselineStart)
+            swaWorksheet.Cells(l, l1).Select
+            Selection.NumberFormat = "m/d/yyyy"
+            l1 = l1 + 1
+            
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = CDate(.BaselineFinish)
+            swaWorksheet.Cells(l, l1).Select
+            Selection.NumberFormat = "m/d/yyyy"
+            l1 = l1 + 1
+                
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = .BaselineDurationText
+            l1 = l1 + 1
+                    
+            On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = CDate(.Start)
+                swaWorksheet.Cells(l, l1).Select
+                Selection.NumberFormat = "d/m/yy hh:mm:ss"
+                l1 = l1 + 1
+                On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = CDate(.Finish)
+                swaWorksheet.Cells(l, l1).Select
+                Selection.NumberFormat = "d/m/yy hh:mm:ss"
+                l1 = l1 + 1
+        
+                On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = .DurationText
+                l1 = l1 + 1
+                On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = .Critical
+                If .Critical = True Then
+                
+                swaWorksheet.Cells(l, l1).Interior.Color = 255
+                
+                End If
+                
+                l1 = l1 + 1
+                            
+                On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = (.TotalSlack / 60) / pro.HoursPerDay
+                l1 = l1 + 1
+                
+            On Error Resume Next
+            swaWorksheet.Cells(l, l1).Value = .PercentComplete
+            l1 = l1 + 1
+            
+                swaWorksheet.Cells(l, l1).Value = 0
+                l1 = l1 + 1
+              
+                swaWorksheet.Cells(l, l1).Value = .PercentComplete - avp
+                l1 = l1 + 1
+                
+                swaWorksheet.Cells(l, l1).Value = .Text10
+                l1 = l1 + 3
+                
+                
+                'On Error Resume Next
+                'swaWorksheet.Cells(l, l1).Value = CDate(.Baseline3Start)
+                'swaWorksheet.Cells(l, l1).Select
+                'Selection.NumberFormat = "m/d/yyyy"
+                
+                'l1 = l1 + 1
+
+                'On Error Resume Next
+                'swaWorksheet.Cells(l, l1).Value = CDate(.Baseline3Finish)
+                'swaWorksheet.Cells(l, l1).Select
+                'Selection.NumberFormat = "m/d/yyyy"
+            
+                'l1 = l1 + 1
+                                        
+                'On Error Resume Next
+                'swaWorksheet.Cells(l, l1).Value = .DurationText
+                'l1 = l1 + 1
+                
+                'On Error Resume Next
+                'swaWorksheet.Cells(l, l1).Value = Application.DateDifference(.Baseline3Start, .start, pro.CALENDAR)
+                'l1 = l1 + 1
+                
+                'On Error Resume Next
+                'swaWorksheet.Cells(l, l1).Value = Application.DateDifference(.Baseline3Finish, .finish, pro.CALENDAR)
+                'l1 = l1 + 1
+                
+                
+                On Error Resume Next
+                swaWorksheet.Cells(l, l1).Value = (.RemainingDuration / 60) / pro.HoursPerDay
+                l1 = l1 + 1
+                                
+                Avp2 = CDate(Application.DateAdd(pro.CurrentDate, .RemainingDuration, pro.Calendar))
+
+                swaWorksheet.Cells(l, l1).Value = Avp2
+                l1 = l1 + 1
+                                   
+                swaWorksheet.Cells(l, l1).Value = .Text3
+                
+                l1 = l1 + 1
+                                
+                swaWorksheet.Cells(l, l1).Value = .Text2
+                
+                l1 = l1 + 1
+                                
+                'swaWorksheet.Cells(l, l1).Value = .UniqueID & .Project
+                                
+                                
+                
+            l = l + 1
+                  
+                        
+             End If
+            End If
+
+End If
+
+'.ConstraintType = 0
+'.ConstraintDate = ""
+
+End With
+
+
+End Sub
+
+
+Sub cabecerainfodiario()
+
+swaWorksheet.Cells(1, l0).Value = "UniqueID"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Subproyecto"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Description"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "B.L Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "B.L Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "B.L Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "A.Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "A.Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Critical"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Slack"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "% Real at cut"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "% Planned at cut"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Diference %"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Discipline"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "R.Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "R.Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Remaining Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Forecast Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Discipline"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Supplier"
+l0 = l0 + 1
+'swaWorksheet.Cells(1, l0).Value = "Key"
+
+
+
+End Sub
+
+Sub infodiarioproyectadosimple()
+
+
+For Each c In RR
+
+roww = c.Row
+
+Set t = pro.Tasks.UniqueID(c.Value)
+    
+    rper = t.PercentComplete
+
+    swaWorksheet.Cells(roww, 13).Value = rper
+    swaWorksheet.Cells(roww, 14).Value = swaWorksheet.Cells(roww, 12).Value - rper
+    
+    If swaWorksheet.Cells(roww, 14).Value < 0 Then
+    
+    swaWorksheet.Cells(roww, 14).Interior.Color = 255
+    
+    ElseIf swaWorksheet.Cells(roww, 14).Value > 0 Then
+    swaWorksheet.Cells(roww, 14).Interior.Color = 5287936
+    
+    End If
+
+
+
+
+
+Next c
+
+
+End Sub
+
+
+Sub infodiarioproyectado()
+
+
+For Each c In RR
+roww = c.Row
+
+
+clave1 = Cells(roww, 22).Value
+
+With t
+clave2 = .UniqueID & .Project
+
+    If clave1 = clave2 Then
+    c.Interior.Color = 65535
+    rper = pro.Tasks.UniqueID(.UniqueID).PercentComplete
+    
+    swaWorksheet.Cells(roww, 13).Value = rper
+    swaWorksheet.Cells(roww, 14).Value = swaWorksheet.Cells(roww, 12).Value - rper
+    
+    If swaWorksheet.Cells(roww, 14).Value < 0 Then
+    
+    swaWorksheet.Cells(roww, 14).Interior.Color = 255
+    
+    ElseIf swaWorksheet.Cells(roww, 14).Value > 0 Then
+    swaWorksheet.Cells(roww, 14).Interior.Color = 5287936
+    End If
+        
+    Exit For
+    End If
+        
+    
+  End With
+
+Next c
+
+End Sub
+
+
+Sub infortaksfinal_simple()
+
+l1 = 1
+
+With t
+
+'fechas
+
+swaWorksheet.Cells(l, l1).Value = CDate(pro.CurrentDate)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = path
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Project
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ID
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Index
+l1 = l1 + 1
+
+''' calcula level
+
+    'texto = ""
+
+     '    On Error Resume Next
+      '  Set prosum = pro.Tasks.UniqueID(t.OutlineParent)
+        
+       ' If Not prosum Is Nothing Then
+        
+        '    Do
+            
+         '   lev = prosum.OutlineLevel
+           '     If lev = 2 Or lev = 0 Then
+          '      Debug.Print t.Name & " " & "**" & prosum.Name
+                                
+            '     texto = prosum.Name & vbNewLine & texto
+                                
+             '    Debug.Print texto
+                                
+                                
+              '  t.Text28 = prosum.Name
+               ' End If
+                
+            'unid = prosum.OutlineParent
+            
+            'Set prosum = pro.Tasks.UniqueID(unid)
+            
+           ' Loop Until lev = 0
+            
+        
+        'End If
+    
+If texto <> "" Then
+swaWorksheet.Cells(l, l1).Value = texto & vbNewLine & .Name
+Else
+swaWorksheet.Cells(l, l1).Value = .Name
+End If
+
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = CDate(.Created)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = excelApp.WorksheetFunction.WeekNum(.Start)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = excelApp.WorksheetFunction.WeekNum(.Finish)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Start)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Finish)
+l1 = l1 + 1
+
+Avp2 = CDate(Application.DateAdd(pro.CurrentDate, .RemainingDuration, pro.Calendar))
+
+swaWorksheet.Cells(l, l1).Value = .Date10
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .PercentComplete
+l1 = l1 + 1
+
+Dim feche As Date
+'feche = "20/03/2018  6:00:00"
+
+swaWorksheet.Cells(l, l1).Value = .Number15
+l1 = l1 + 1
+
+On Error Resume Next
+'swaWorksheet.Cells(l, l1).Value = (.Work / 60) / pro.HoursPerDay
+swaWorksheet.Cells(l, l1).Value = .PercentComplete - .Number15
+l1 = l1 + 1
+
+
+swaWorksheet.Cells(l, l1).Value = .PercentWorkComplete
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.OvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.StartSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FinishSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FreeSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.TotalSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.StartVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FinishVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.DurationVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.WorkVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = DateDiff("d", .BaselineFinish, .Finish)
+'(.LevelingDelay / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+'.ConstraintType = 0
+'.ConstraintDate = ""
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ActualStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ActualFinish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualOvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingOvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RegularWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.BaselineStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.BaselineFinish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.BaselineDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = .BaselineDurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.BaselineWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.BaselineDurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline1Start)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline1Finish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline1Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Baseline1DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline1Work / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.Baseline1DurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline2Start)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline2Finish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline2Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Baseline2DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline2Work / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.Baseline2DurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = CDate(.ConstraintDate)
+l1 = l1 + 1
+
+On Error Resume Next
+If .ConstraintType = 1 Then
+
+tipocons = "Task occurs as late as possible in the schedule without delaying subsequent tasks"
+
+ElseIf .ConstraintType = 0 Then
+
+tipocons = "Task occurs as soon as possible in the schedule. This is the default constraint type for tasks."
+
+ElseIf .ConstraintType = 6 Then
+
+tipocons = "Task finishes on or after the constraint date."
+
+ElseIf .ConstraintType = 7 Then
+
+tipocons = "Task finishes on or before the constraint date."
+
+ElseIf .ConstraintType = 3 Then
+
+tipocons = "Task finishes on the constraint date."
+
+ElseIf .ConstraintType = 2 Then
+
+tipocons = "Task starts on the constraint date."
+
+ElseIf .ConstraintType = 4 Then
+
+tipocons = "Task starts on or after the constraint date."
+
+ElseIf .ConstraintType = 5 Then
+
+tipocons = "Task starts on or before the constraint date."
+
+End If
+
+swaWorksheet.Cells(l, l1).Value = tipocons
+l1 = l1 + 1
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Deadline)
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.EarlyStart)
+
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.EarlyFinish)
+
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.LateStart)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.LateFinish)
+l1 = l1 + 1
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.PreleveledStart)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.PreleveledFinish)
+l1 = l1 + 1
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Stop)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Resume)
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ScheduledStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ScheduledFinish)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ScheduledDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+'textos
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Active
+l1 = l1 + 1
+
+On Error Resume Next
+
+If .Critical = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+On Error Resume Next
+
+If .Summary = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+On Error Resume Next
+
+If .Milestone = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ExternalTask
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Manual
+l1 = l1 + 1
+
+
+If .Finish < datereport Then
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = "Expired"
+Else
+swaWorksheet.Cells(l, l1).Value = "Ongoing"
+'swaWorksheet.Cells(l, l1).Value = .ErrorMessage
+End If
+
+
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineChildren
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineLevel
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineNumber
+l1 = l1 + 1
+On Error Resume Next
+
+swaWorksheet.Cells(l, l1).Value = pro.Tasks.UniqueID(.OutlineParent).UniqueID
+
+swaWorksheet.Cells(l, l1).Value = pro.Tasks.UniqueID(.OutlineParent).UniqueID
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Parent
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Predecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .PredecessorTasks.Count
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Priority
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ResourceNames
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .SplitParts
+l1 = l1 + 1
+
+If .Status = pjComplete Then
+Statuss = "Complete"
+ElseIf .Status = pjFutureTask Then
+Statuss = "FutureTask"
+ElseIf .Status = pjLate Then
+Statuss = "Late"
+ElseIf .Status = pjNoData Then
+Statuss = "NoData"
+ElseIf .Status = pjOnSchedule Then
+Statuss = "OnSchedule"
+End If
+
+swaWorksheet.Cells(l, l1).Value = Statuss
+l1 = l1 + 1
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+If .Status = pjComplete Then
+Statuss1 = "Complete"
+
+Else
+
+
+    If .PercentComplete = 0 And .Start >= pro.CurrentDate Then
+    Statuss1 = "FutureTask"
+    
+    ElseIf .PercentComplete = 0 And .Start < pro.CurrentDate Then
+    Statuss1 = "Late_Start"
+    
+    ElseIf .Finish < pro.CurrentDate Then
+    Statuss1 = "Late_Finish"
+    
+    ElseIf .PercentComplete > 0 And .Start <= pro.CurrentDate And .Finish >= pro.CurrentDate Then
+    Statuss1 = "OnSchedule"
+    
+    ElseIf .PercentComplete > 0 And .Start >= pro.CurrentDate And .Finish >= pro.CurrentDate Then
+    Statuss1 = "OnSchedule"
+    
+    End If
+'''''''
+
+
+End If
+
+swaWorksheet.Cells(l, l1).Value = Statuss1
+l1 = l1 + 1
+
+
+
+
+'activecell.Task.SubProject = "C:\Project\MySubProject.mpp"
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Subproject
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueID
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueIDPredecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueIDSuccessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Warning
+l1 = l1 + 1
+On Error Resume Next
+'swaWorksheet.Cells(l, l1).Value = texto & vbNewLine & .Name
+swaWorksheet.Cells(l, l1).Value = .Warning
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .WBSPredecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .WBSSuccessors
+l1 = l1 + 1
+swaWorksheet.Cells(l, l1).Value = pro.Tasks.UniqueID(.OutlineParent).Name
+l1 = l1 + 1
+swaWorksheet.Cells(l, l1).Value = .ID & .Project
+l1 = l1 + 1
+
+If .PercentComplete < .Number15 Then
+'Atrasada
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf .PercentComplete >= .Number15 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 4
+l1 = l1 + 1
+End If
+
+If .FinishVariance > 0 Then
+'Atrasada
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf .FinishVariance <= 0 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 4
+l1 = l1 + 1
+End If
+
+'categorias
+If (.Number15 - .PercentComplete) > 0 And (.Number15 - .PercentComplete) <= 30 Then
+
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf (.Number15 - .PercentComplete) > 30 And (.Number15 - .PercentComplete) <= 70 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 2
+l1 = l1 + 1
+
+ElseIf (.Number15 - .PercentComplete) > 70 Then
+
+swaWorksheet.Cells(l, l1).Value = 3
+l1 = l1 + 1
+
+Else
+
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+
+
+End If
+
+
+swaWorksheet.Cells(l, l1).Value = path & .UniqueID
+l1 = l1 + 1
+
+
+swaWorksheet.Cells(l, l1).Value = path & pro.Tasks.UniqueID(.OutlineParent).UniqueID
+l1 = l1 + 1
+
+
+swaWorksheet.Cells(l, l1).Value = .Text21
+l1 = l1 + 1
+
+
+End With
+
+l = l + 1
+
+
+
+
+
+
+
+
+
+
+
+
+End Sub
+
+
+
+Sub A3_exp_exe_uni()
+
+'para aumentar el filtro
+datereport2 = DateAdd("d", 40, Now())
+
+Set excelApp = CreateObject("Excel.Application")
+    excelApp.Visible = True
+    Set swaWorkbook = excelApp.Workbooks.Add
+    Set swaWorksheet = excelApp.Worksheets(1) ' work with first worksheet
+    'Set swaWorksheet1 = excelApp.Worksheets(2)
+
+Application.DisplayAlerts = False
+Application.Calculation = pjAutomatic
+
+For i = 1 To 5
+Application.SelectSheet
+Application.OutlineShowAllTasks
+Application.OutlineShowSubTasks
+
+Next i
+
+
+l = 2
+l0 = 1
+l1 = 1
+
+swaWorksheet.Select
+Call cabeceras
+
+Set pro = ActiveProject
+
+'pro.MultipleCriticalPaths = True
+'pro.ShowCriticalSlack = 1
+
+Set subpros = pro.Subprojects
+
+Dim SubProj As Subproject
+
+For Each SubProj In subpros
+
+Z = SubProj.SourceProject.Tasks.Count
+
+Next
+
+
+'For Each SubProj In ActiveProject.Subprojects
+'If UCase(Left$(SubProj.Path, 1)) = "C" Then
+
+'MsgBox Right(SubProj.Path, InStrRev(SubProj.Path, "\") - 1) & " is not on your local hard disk.", vbExclamation
+
+'End If
+
+'Next SubProj
+    
+Set tareas = pro.Tasks
+
+x = pro.NumberOfTasks
+  
+
+Call infotaskrefinal
+
+For Each t In tareas
+    
+    'If t.Status <> pjComplete Then
+'    If t.PercentComplete = 0 Then
+
+    'If t.Critical = True Then
+    
+    
+
+        'If t.Summary = True Then
+    
+   '         If t.start <= datereport2 Then
+  '
+                'If T.Text30 = "GENERAL" Then
+                
+                 'Call infortaksfinal_simple
+                 Call infortaksfinal_simple
+                
+                
+                'End If
+            
+    '        End If
+    
+         'End If
+    'End If
+
+
+   'End If
+
+Next t
+
+'Set rr = swaWorksheet.Range(Cells(2, 1), Cells(swaWorksheet.Range("a1").End(xlDown).Row, 1))
+
+'Application.UpdateProject all:=True, updateDate:=pro.CurrentDate
+
+'For Each t In tareas
+
+'Call proyectadofinal
+
+'Next t
+
+
+'Application.FileCloseEx pjDoNotSave
+
+'Application.Calculation = pjAutomatic
+
+MsgBox "Informe finalizado", vbInformation
+
+End Sub
+
+Sub cabeceras()
+swaWorksheet.Cells(1, l0).Value = "Fecha_actual"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "week_data"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Project"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ID"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Index"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Name"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Created"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "week_start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "week_finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Forecast_Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Duration_Text"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Actual_Percent_Complete"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Planned_Percent_Complete"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Work"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PercentWorkComplete"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "OvertimeWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Start_Slack"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "FinishSlack"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "FreeSlack"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "TotalSlack"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "StartVariance"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "FinishVariance"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "DurationVariance"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "WorkVariance"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "LevelingDelay"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ActualStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ActualFinish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ActualDuration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "RemainingDuration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ActualWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "RemainingWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ActualOvertimeCost"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "RemainingOvertimeWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "RegularWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineFinish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineDuration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineDurationText"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineWork"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "BaselineDurationEstimated"
+l0 = l0 + 1
+
+swaWorksheet.Cells(1, l0).Value = "Baseline1Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1DurationText"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1Work"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1DurationEstimated"
+l0 = l0 + 1
+
+swaWorksheet.Cells(1, l0).Value = "Baseline2Start"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline2Finish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline2Duration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline2DurationText"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline2Work"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Baseline1DurationEstimated"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ConstraintDate"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Constrainttype"
+l0 = l0 + 1
+
+swaWorksheet.Cells(1, l0).Value = "Deadline"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "EarlyStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "EarlyFinish"
+l0 = l0 + 1
+
+swaWorksheet.Cells(1, l0).Value = "LateStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "LateFinish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PreleveledStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PreleveledFinish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Stop"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Resume"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ScheduledStart"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ScheduledFinish"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ScheduledDuration"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Active"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Crítical"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Summary"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Milestone"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ExternalTask"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Manual"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ErrorMessage"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "OutlineChildren"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "OutlineLevel"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "OutlineNumber"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "OutlineParent"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Parent"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PredecessorTasks"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "PredecessorTasks_count"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Priority"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ResourceNames"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "SplitParts"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Project_status"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Project_status_AV"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "SubProjectReadOnly"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "UniqueID"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "UniqueIDPredecessors"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "UniqueIDSuccessors"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Warning"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "WBS"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "WBSPredecessors"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "WBSSuccessors"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Belong"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "clave"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "ind_Porcentaje"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Ind_Fecha"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "Categoria_Porcentaje"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "AUQ"
+l0 = l0 + 1
+swaWorksheet.Cells(1, l0).Value = "AOPUQ"
+l0 = l0 + 1
+
+End Sub
+
+
+
+Sub infotaskrefinal()
+
+
+
+l1 = 1
+With pro.ProjectSummaryTask
+
+'fechas
+
+swaWorksheet.Cells(l, l1).Value = CDate(pro.CurrentDate)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = path
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Project
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ID
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Index
+l1 = l1 + 1
+
+pat = pro.Tasks.UniqueID(.OutlineParent).Name
+
+'swaWorksheet.Cells(l, l1).Value = pat & vbNewLine & .Name
+swaWorksheet.Cells(l, l1).Value = .Name
+
+l1 = l1 + 1
+
+
+swaWorksheet.Cells(l, l1).Value = CDate(.Created)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = excelApp.WorksheetFunction.WeekNum(.Start)
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = excelApp.WorksheetFunction.WeekNum(.Finish)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Start)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Finish)
+l1 = l1 + 1
+
+Avp2 = CDate(Application.DateAdd(pro.CurrentDate, .RemainingDuration, pro.Calendar))
+
+swaWorksheet.Cells(l, l1).Value = .Date10
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .PercentComplete
+l1 = l1 + 1
+
+Dim feche As Date
+feche = Application.DateAdd(pro.CurrentDate, "1d", pro.Calendar)
+'feche = "20/03/2018  6:00:00"
+
+swaWorksheet.Cells(l, l1).Value = .Number15
+l1 = l1 + 1
+
+On Error Resume Next
+'swaWorksheet.Cells(l, l1).Value = (.Work / 60) / pro.HoursPerDay
+
+swaWorksheet.Cells(l, l1).Value = .PercentComplete - .Number15
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = .PercentWorkComplete
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.OvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.StartSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FinishSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FreeSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.TotalSlack / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.StartVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.FinishVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.DurationVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.WorkVariance / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = DateDiff("d", .BaselineFinish, .Finish)
+'(.LevelingDelay / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+'.ConstraintType = 0
+'.ConstraintDate = ""
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ActualStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ActualFinish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ActualOvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RemainingOvertimeWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.RegularWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+    On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.BaselineStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.BaselineFinish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.BaselineDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = .BaselineDurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.BaselineWork / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.BaselineDurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline1Start)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline1Finish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline1Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Baseline1DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline1Work / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.Baseline1DurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline2Start)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Baseline2Finish)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline2Duration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Baseline2DurationText
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.Baseline2Work / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = (.Baseline2DurationEstimated / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+swaWorksheet.Cells(l, l1).Value = CDate(.ConstraintDate)
+l1 = l1 + 1
+
+On Error Resume Next
+If .ConstraintType = 1 Then
+
+tipocons = "Task occurs as late as possible in the schedule without delaying subsequent tasks"
+
+ElseIf .ConstraintType = 0 Then
+
+tipocons = "Task occurs as soon as possible in the schedule. This is the default constraint type for tasks."
+
+ElseIf .ConstraintType = 6 Then
+
+tipocons = "Task finishes on or after the constraint date."
+
+ElseIf .ConstraintType = 7 Then
+
+tipocons = "Task finishes on or before the constraint date."
+
+ElseIf .ConstraintType = 3 Then
+
+tipocons = "Task finishes on the constraint date."
+
+ElseIf .ConstraintType = 2 Then
+
+tipocons = "Task starts on the constraint date."
+
+ElseIf .ConstraintType = 4 Then
+
+tipocons = "Task starts on or after the constraint date."
+
+ElseIf .ConstraintType = 5 Then
+
+tipocons = "Task starts on or before the constraint date."
+
+End If
+
+swaWorksheet.Cells(l, l1).Value = tipocons
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Deadline)
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.EarlyStart)
+
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.EarlyFinish)
+
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.LateStart)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.LateFinish)
+l1 = l1 + 1
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.PreleveledStart)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.PreleveledFinish)
+l1 = l1 + 1
+
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Stop)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.Resume)
+l1 = l1 + 1
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ScheduledStart)
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = CDate(.ScheduledFinish)
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = (.ScheduledDuration / 60) / pro.HoursPerDay
+l1 = l1 + 1
+
+'textos
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Active
+l1 = l1 + 1
+
+On Error Resume Next
+
+If .Critical = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+On Error Resume Next
+
+If .Summary = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+On Error Resume Next
+If .Milestone = True Then
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+End If
+
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ExternalTask
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Manual
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ErrorMessage
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineChildren
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineLevel
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .OutlineNumber
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = pro.Tasks.UniqueID(.OutlineParent).UniqueID
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Parent
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Predecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .PredecessorTasks.Count
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Priority
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .ResourceNames
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .SplitParts
+l1 = l1 + 1
+
+If .Status = pjComplete Then
+Statuss = "Complete"
+ElseIf .Status = pjFutureTask Then
+Statuss = "FutureTask"
+ElseIf .Status = pjLate Then
+Statuss = "Late"
+ElseIf .Status = pjNoData Then
+Statuss = "NoData"
+ElseIf .Status = pjOnSchedule Then
+Statuss = "OnSchedule"
+End If
+
+swaWorksheet.Cells(l, l1).Value = Statuss
+l1 = l1 + 1
+''''''''''''''''''''''''''''
+If .Status = pjComplete Then
+Statuss1 = "Complete"
+
+Else
+
+
+    If .PercentComplete = 0 And .Start >= pro.CurrentDate Then
+    Statuss1 = "FutureTask"
+    
+    ElseIf .PercentComplete = 0 And .Start < pro.CurrentDate Then
+    Statuss1 = "Late_Start"
+    
+    ElseIf .Finish < pro.CurrentDate Then
+    Statuss1 = "Late_Finish"
+    
+    ElseIf .PercentComplete > 0 And .Start <= pro.CurrentDate And .Finish >= pro.CurrentDate Then
+    Statuss1 = "OnSchedule"
+    
+    ElseIf .PercentComplete > 0 And .Start >= pro.CurrentDate And .Finish >= pro.CurrentDate Then
+    Statuss1 = "OnSchedule"
+    
+    End If
+'''''''
+
+
+End If
+
+swaWorksheet.Cells(l, l1).Value = Statuss1
+l1 = l1 + 1
+
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .SubProjectReadOnly
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueID
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueIDPredecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .UniqueIDSuccessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .Warning
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .WBS
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .WBSPredecessors
+l1 = l1 + 1
+On Error Resume Next
+swaWorksheet.Cells(l, l1).Value = .WBSSuccessors
+l1 = l1 + 1
+swaWorksheet.Cells(l, l1).Value = pro.Tasks.UniqueID(.OutlineParent).Name
+l1 = l1 + 1
+swaWorksheet.Cells(l, l1).Value = .ID & .Project
+l1 = l1 + 1
+
+If .PercentComplete < .Number15 Then
+'Atrasada
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf .PercentComplete >= .Number15 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 4
+l1 = l1 + 1
+End If
+
+If .FinishVariance > 0 Then
+'Atrasada
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf .FinishVariance <= 0 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 4
+l1 = l1 + 1
+End If
+
+'categorias
+If (.Number15 - .PercentComplete) > 0 And (.Number15 - .PercentComplete) <= 30 Then
+
+swaWorksheet.Cells(l, l1).Value = 1
+l1 = l1 + 1
+ElseIf (.Number15 - .PercentComplete) > 30 And (.Number15 - .PercentComplete) <= 70 Then
+'Adelantada
+swaWorksheet.Cells(l, l1).Value = 2
+l1 = l1 + 1
+
+ElseIf (.Number15 - .PercentComplete) > 70 Then
+swaWorksheet.Cells(l, l1).Value = 3
+l1 = l1 + 1
+
+Else
+swaWorksheet.Cells(l, l1).Value = 0
+l1 = l1 + 1
+
+
+
+End If
+
+swaWorksheet.Cells(l, l1).Value = path & .UniqueID
+l1 = l1 + 1
+
+End With
+
+l = l + 1
+
+
+End Sub
